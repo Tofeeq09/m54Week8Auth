@@ -5,7 +5,6 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../db/connection");
 
 const User = sequelize.define("User", {
-  // Model attributes are defined here
   firstName: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -23,3 +22,5 @@ const User = sequelize.define("User", {
     allowNull: false,
   },
 });
+
+module.exports = User;

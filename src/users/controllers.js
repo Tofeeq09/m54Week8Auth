@@ -1,5 +1,10 @@
+// Internal Dependencies
 const User = require("./model"); // Import the Book model from the model.js file.
 
+// Functions
+
+// Create a new user
+// POST /users
 const createUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -10,6 +15,8 @@ const createUser = async (req, res) => {
   }
 };
 
+// Get all users
+// GET /users
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll();
@@ -19,6 +26,8 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Get a user by id
+// GET /users/:id
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -33,6 +42,8 @@ const getUserById = async (req, res) => {
   }
 };
 
+// Update a user
+// PUT /users/:id
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -50,6 +61,8 @@ const updateUser = async (req, res) => {
   }
 };
 
+// Delete a user
+// DELETE /users/:id
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -66,6 +79,7 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// Export the functions
 module.exports = {
   createUser,
   getAllUsers,

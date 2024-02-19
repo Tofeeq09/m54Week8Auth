@@ -3,8 +3,8 @@ require("dotenv").config();
 const express = require("express");
 
 // Internal Dependencies
-const UserRouter = require("./users/routes"); // From the books/routes.js file.
-const User = require("./users/model"); // From the books/model.js file.
+const UserRouter = require("./users/routes"); // From the users/routes.js file.
+const User = require("./users/model"); // From the users/model.js file.
 const sequelize = require("./db/connection"); // From the db/connection.js file.
 
 // Variables
@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 
 // Routes
-app.use("/books", UserRouter);
+app.use("/users", UserRouter);
 
 // Health Check
 app.get("/health", (req, res) => {
