@@ -3,7 +3,7 @@ const { Router } = require("express"); // Import the express Router module.
 
 // Internal Dependencies
 const {
-  createUser,
+  signup,
   login,
   getAllUsers,
   getUserByUsername,
@@ -14,14 +14,19 @@ const { hashPassword, comparePassword } = require("../middleware/auth"); // Impo
 
 // Variables
 const userRouter = Router();
+const signupRouter = Router();
+const loginRouter = Router();
 
 // Routes
-userRouter.post("/signup", hashPassword, createUser);
-userRouter.post("/login", comparePassword, login);
+// User Routes
 userRouter.get("/", getAllUsers);
-userRouter.get("/:id", getUserByUsername);
-userRouter.put("/:id", updateUserByUsername);
-userRouter.delete("/:id", deleteUserByUsername);
+userRouter.get("/:username", getUserByUsername);
+userRouter.put("/:username", updateUserByUsername);
+userRouter.delete("/:username", deleteUserByUsername);
+// Sign up Rout
+signupRouter.post("/", hashPassword, signup);
+// Login Route
+loginRouter.post("/", comparePassword, login);
 
 // Export userRouter
 module.exports = userRouter;

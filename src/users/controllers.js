@@ -5,7 +5,7 @@ const User = require("./model"); // Import the Book model from the model.js file
 
 // Create a new user
 // POST /users
-const createUser = async (req, res) => {
+const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const user = await User.create({ username, email, password });
@@ -44,7 +44,7 @@ const getUserByUsername = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  res.status(200).json({ message: "Login successful" });
+  res.status(200).json({ message: "Login successful", username: req.body.username });
 };
 
 // Update a username
@@ -84,7 +84,7 @@ const deleteUserByUsername = async (req, res) => {
 
 // Export the functions
 module.exports = {
-  createUser,
+  signup,
   login,
   getAllUsers,
   getUserByUsername,

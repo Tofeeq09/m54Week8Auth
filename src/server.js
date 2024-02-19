@@ -5,25 +5,21 @@ const express = require("express");
 
 // Internal Dependencies
 const UserRouter = require("./users/routes"); // From the users/routes.js file.
+const SignupRouter = require("./users/routes"); // From the users/routes.js file.
+const LoginRouter = require("./users/routes"); // From the users/routes.js file.
 const User = require("./users/model"); // From the users/model.js file.
 
 // Variables
 const port = process.env.PORT || 5001;
 const app = express();
 
-// const saltRounds = 10;
-// const plainTextPassword = "password";
-// const hashPassword = async () => {
-//   let hash = await bcrypt.hash(plainTextPassword, saltRounds);
-//   console.log(hash);
-// };
-// hashPassword();
-
 // Middlewares
 app.use(express.json());
 
 // Routes
 app.use("/users", UserRouter);
+app.use("/signup", SignupRouter);
+app.use("/login", LoginRouter);
 
 // Health Check
 app.get("/health", (req, res) => {

@@ -10,14 +10,16 @@ const saltRounds = parseInt(process.env.SALT_ROUNDS);
 // Functions
 
 // Hash the password
+// POST /signup
 const hashPassword = async (req, res, next) => {
   try {
     const { password } = req.body;
-    console.log(password);
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Replace the plaintext password with the hashed password to be stored in the database
     req.body.password = hashedPassword;
-    console.log(hashedPassword);
     next();
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -25,6 +27,7 @@ const hashPassword = async (req, res, next) => {
 };
 
 // Compare the password
+// POST /login
 const comparePassword = async (req, res, next) => {
   try {
     const { username, password } = req.body;
@@ -32,13 +35,15 @@ const comparePassword = async (req, res, next) => {
     // Find the user by username
     const user = await User.findOne({ where: { username } });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      res.status(404).json({ message: "User not found" });
+      return;
     }
 
     // Compare the plaintext password with the hashed password
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(401).json({ message: "Password is incorrect" });
+      res.status(401).json({ message: "Password is incorrect" });
+      return;
     }
     // Status code 401 is used when a user is not authorized to access a resource.
     // Status code 402 is used when a user needs to authenticate to access a resource.
