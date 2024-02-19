@@ -7,8 +7,8 @@ const User = require("./model"); // Import the Book model from the model.js file
 // POST /users
 const createUser = async (req, res) => {
   try {
-    // const { username, email, password } = req.body;
-    const user = await User.create(req.body);
+    const { username, email, password } = req.body;
+    const user = await User.create({ username, email, password });
     res.status(201).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -26,53 +26,51 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// Get a user by id
-// GET /users/:id
-const getUserById = async (req, res) => {
+// Get a user by username
+// GET /users/:username
+const getUserByUsername = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findByPk(id);
+    const { username } = req.params;
+    const user = await User.findOne({ where: { username } });
     if (user) {
       res.status(200).json(user);
     } else {
-      res.status(404).json({ message: `User with id ${id} not found` });
+      res.status(404).json({ message: `User with username ${username} not found` });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Update a user
-// PUT /users/:id
-const updateUser = async (req, res) => {
+// Update a username
+// PUT /users/:username
+const updateUserByUsername = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { username } = req.params;
     const [updated] = await User.update(req.body, {
-      where: { id: id },
+      where: { username: username },
     });
     if (updated) {
-      const updatedUser = await User.findByPk(id);
+      const updatedUser = await User.findOne({ where: { username: username } });
       res.status(200).json(updatedUser);
     } else {
-      res.status(404).json({ message: `User with id ${id} not found` });
+      res.status(404).json({ message: `User with username ${username} not found` });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Delete a user
-// DELETE /users/:id
-const deleteUser = async (req, res) => {
+// Delete a username
+// DELETE /users/:username
+const deleteUserByUsername = async (req, res) => {
   try {
-    const { id } = req.params;
-    const deleted = await User.destroy({
-      where: { id: id },
-    });
+    const { username } = req.params;
+    const deleted = await User.destroy({ where: { username } });
     if (deleted) {
       res.status(204).send("User deleted");
     } else {
-      res.status(404).json({ message: `User with id ${id} not found` });
+      res.status(404).json({ message: `User with username ${username} not found` });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -83,7 +81,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
   createUser,
   getAllUsers,
-  getUserById,
-  updateUser,
-  deleteUser,
+  getUserByUsername,
+  updateUserByUsername,
+  deleteUserByUsername,
 };

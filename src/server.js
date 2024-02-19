@@ -1,15 +1,23 @@
 // External Dependencies
 require("dotenv").config();
 const express = require("express");
+// const bcrypt = require("bcrypt");
 
 // Internal Dependencies
 const UserRouter = require("./users/routes"); // From the users/routes.js file.
 const User = require("./users/model"); // From the users/model.js file.
-const sequelize = require("./db/connection"); // From the db/connection.js file.
 
 // Variables
 const port = process.env.PORT || 5001;
 const app = express();
+
+// const saltRounds = 10;
+// const plainTextPassword = "password";
+// const hashPassword = async () => {
+//   let hash = await bcrypt.hash(plainTextPassword, saltRounds);
+//   console.log(hash);
+// };
+// hashPassword();
 
 // Middlewares
 app.use(express.json());
@@ -28,7 +36,7 @@ const syncTables = async () => {
 };
 
 // Server
-app.listen(process.env.PORT, () => {
+app.listen(port, () => {
   syncTables();
   console.log(`Server is running on port ${port}`);
 });
