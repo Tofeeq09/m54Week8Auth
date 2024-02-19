@@ -22,8 +22,9 @@ app.get("/health", (req, res) => {
   res.status(200).json({ message: "Server is running" });
 });
 
+// Sync Tables
 const syncTables = async () => {
-  await sequelize.sync(); // sequelize.sync() - is equivalent to Book.sync() and Author.sync() and Genre.sync() but it syncs all the tables at once.
+  await User.sync();
 };
 
 // Server
