@@ -1,0 +1,11 @@
+# Node.js
+/node_modules
+
+# Environment variables
+.env
+
+# macOS
+.DS_Store
+
+# Visual Studio Code settings
+.vscode // This directory contains settings specific to Visual Studio Code
