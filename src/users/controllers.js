@@ -7,7 +7,7 @@ const User = require("./model"); // Import the Book model from the model.js file
 // POST /users
 const createUser = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    // const { username, password } = req.body;
     const user = await User.create(req.body);
     res.status(201).json(user);
   } catch (error) {
