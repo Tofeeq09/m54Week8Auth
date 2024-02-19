@@ -29,12 +29,12 @@ const User = sequelize.define(
   },
   {
     hooks: {
-      beforeCreate: async (user) => {
-        if (user.password) {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        }
-      },
+      // beforeCreate: async (user) => {
+      //   if (user.password) {
+      //     const salt = await bcrypt.genSalt(10);
+      //     user.password = await bcrypt.hash(user.password, salt);
+      //   }
+      // },
       // beforeCreate: async (user) => {...}: This is a hook that Sequelize will call before a new user is created.
       // The user object that's about to be created is passed to the function.
 
@@ -47,7 +47,8 @@ const User = sequelize.define(
       // A salt is random data that's used as an additional input to a one-way function that hashes data, a password in this case.
       // The number 10 here defines the cost factor. It determines how much time is needed to calculate a single BCrypt hash.
       // The higher the cost factor, the more hashing rounds are made, increasing the time it takes to generate the hash and thus the security.
-      // See server.js for further information on the cost factor.
+      // Refer to the bcrypt documentation for more information on the cost factor.
+      // ../middleware/auth.js has more information on bcrypt and the cost factor.
 
       // user.password = await bcrypt.hash(user.password, salt): This hashes the user's password with the generated salt using bcrypt.
       // The hashed password is then stored in the user object, replacing the plain text password.

@@ -8,13 +8,14 @@ const {
   getUserByUsername,
   updateUserByUsername,
   deleteUserByUsername,
-} = require("./controllers"); // Import the functions from the controllers.js file.
+} = require("./controllers"); // Import the controller functions from the controllers.js file.
+const { hashPassword } = require("../middleware/auth"); // Import the auth middleware functions from middleware/auth.js.
 
 // Variables
 const userRouter = Router();
 
 // Routes
-userRouter.post("/signup", createUser);
+userRouter.post("/signup", hashPassword, createUser);
 userRouter.get("/", getAllUsers);
 userRouter.get("/:id", getUserByUsername);
 userRouter.put("/:id", updateUserByUsername);
