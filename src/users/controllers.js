@@ -43,6 +43,10 @@ const getUserByUsername = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  res.status(200).json({ message: "Login successful" });
+};
+
 // Update a username
 // PUT /users/:username
 const updateUserByUsername = async (req, res) => {
@@ -81,6 +85,7 @@ const deleteUserByUsername = async (req, res) => {
 // Export the functions
 module.exports = {
   createUser,
+  login,
   getAllUsers,
   getUserByUsername,
   updateUserByUsername,
