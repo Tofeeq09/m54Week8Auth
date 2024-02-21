@@ -17,7 +17,7 @@ const hashPassword = async (req, res, next) => {
 
     next(); // Call the next middleware function or the route handler in the stack. This could be another middleware function that performs additional processing, or it could be the route handler that responds to the request.
   } catch (error) {
-    res.status(500).json({ error: error.message }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the bcrypt library, a problem with the request body, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the bcrypt library, a problem with the request body, or a problem with the server itself.
   }
 };
 // Compare the password middleware for the POST /login route
@@ -44,22 +44,61 @@ const comparePassword = async (req, res, next) => {
     //   updatedAt: user.updatedAt,
     // }; // If the passwords match, attach the user's username to the request object. This is a placeholder for the actual login logic, which would involve generating a session or token. This is how we authenticate the user and start a new session.
 
-    const { password: userPassword, ...userWithoutPassword } = user.toJSON(); // In this code, const { password: userPassword, ...userWithoutPassword } = user.toJSON(); destructures the user object into userPassword and userWithoutPassword. The ... syntax is the rest operator, which collects the remaining properties (i.e., all properties other than password) into a new object userWithoutPassword.
+    // const { password: userPassword, ...userWithoutPassword } = user.toJSON(); // In this code, const { password: userPassword, ...userWithoutPassword } = user.toJSON(); destructures the user object into userPassword and userWithoutPassword. The ... syntax is the rest operator, which collects the remaining properties (i.e., all properties other than password) into a new object userWithoutPassword.
     // 1. user.toJSON(): This is a method provided by Sequelize (a promise-based Node.js ORM for Postgres, MySQL, MariaDB, SQLite, and Microsoft SQL Server). It converts the instance of the user model into a plain JavaScript object, which is easier to work with.
     // 2. const { password: userPassword, ...userWithoutPassword } = ...: This is JavaScript destructuring assignment syntax. It's a way of extracting multiple properties from an object or array in a single statement.
     // 3. password: userPassword: This extracts the password property from the object returned by user.toJSON() and assigns it to a new variable named userPassword. The colon (:) in this context is used to rename the variable to which the value is assigned.
     // 4. ...userWithoutPassword: The ... is the rest operator. It's used to gather the remaining properties (not already extracted via destructuring) into a new object. In this case, it gathers all properties of the user object except for password into a new object userWithoutPassword.
+    // req.userData = userWithoutPassword; // If the passwords match, attach the user's data to the request object. This is a placeholder for the actual login logic, which would involve generating a session or token. This is how we authenticate the user and start a new session.
 
-    req.userData = userWithoutPassword; // If the passwords match, attach the user's data to the request object. This is a placeholder for the actual login logic, which would involve generating a session or token. This is how we authenticate the user and start a new session.
+    req.user = user; // If the passwords match, attach the user's data to the request object. This is a placeholder for the actual login logic, which would involve generating a session or token. This is how we authenticate the user and start a new session.
 
     next(); // If the passwords match, call the next middleware function or the route handler in the stack. This could be another middleware function that performs additional processing, or it could be the route handler that responds to the request.
   } catch (error) {
-    res.status(500).json({ message: error.message, error: error }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the bcrypt library, a problem with the request body, a problem with the User model, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the bcrypt library, a problem with the User model, a problem with the request body, or a problem with the server itself.
+  }
+};
+
+const tokenCheck = async (req, res, next) => {
+  try {
+    console.log(req.header("Authorization"));
+    // 1. check request headers - does Authorization exist
+
+    if (!req.header("Authorization")) {
+      throw new Error("No token passed");
+    }
+
+    // 2. get the JWT from the headers
+
+    const token = req.header("Authorization").replace("Bearer ", "");
+
+    // 3. decode the token using SECRET
+
+    const decodedToken = await jwt.verify(token, process.env.SECRET);
+
+    // 4. get user with id
+
+    const user = await User.findOne({ where: { id: decodedToken.id } });
+
+    // 5. if !user send 401 response
+
+    if (!user) {
+      res.status(401).json({ message: "not authorized" });
+      return;
+    }
+
+    // 6. pass on user data to login function
+
+    req.authCheck = user;
+
+    next();
+  } catch (error) {
+    res.status(501).json({ error: { name: error.name, message: error.message, stack: error.stack } });
   }
 };
 
 // Export the hashPassword and comparePassword middleware functions
-module.exports = { hashPassword, comparePassword }; // Export the hashPassword and comparePassword middleware functions for use in other files. These functions can be used in the route definitions to perform password hashing and comparison before the route handlers are called.
+module.exports = { hashPassword, comparePassword, tokenCheck }; // Export the hashPassword and comparePassword middleware functions for use in other files. These functions can be used in the route definitions to perform password hashing and comparison before the route handlers are called.
 
 // Status code 401 is used when a user is not authorized to access a resource.
 // Status code 402 is used when a user needs to authenticate to access a resource.

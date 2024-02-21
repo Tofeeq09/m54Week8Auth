@@ -1,5 +1,6 @@
 //  Importing Internal Dependencies
 const User = require("./model"); // Import the User model from the model.js file. This model represents the users table in the database and can be used to run queries on this table.
+const jwt = require("jsonwebtoken"); // Import the jsonwebtoken library, which provides functions for creating and verifying JSON Web Tokens (JWTs). JWTs are a compact, URL-safe means of representing claims to be transferred between two parties. The claims in a JWT are encoded as a JSON object that is used as the payload of a JSON Web Signature (JWS) structure or as the plaintext of a JSON Web Encryption (JWE) structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted.
 
 // Route handler / Controller functions
 // Create a new user on the POST /api/signup route
@@ -11,7 +12,7 @@ const signup = async (req, res) => {
     const userResponse = { id: user.id, username: user.username, email: user.email }; // Create a response object that includes the new user's id, username, and email. This object will be sent back to the client in the response.
     res.status(201).json(userResponse); // Send a 201 Created status code and the userResponse object in the response. The 201 status code indicates that a new resource was successfully created.
   } catch (error) {
-    res.status(500).json({ error: error.message }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
 };
 // Get all users on the GET /api/users route
@@ -21,7 +22,7 @@ const getAllUsers = async (req, res) => {
 
     res.status(200).json(users); // Send a 200 OK status code and the array of users in the response. The 200 status code indicates that the request was successful.
   } catch (error) {
-    res.status(500).json({ error: error.message }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
 };
 // Get a user by username on the GET /api/users/:username route
@@ -36,12 +37,42 @@ const getUserByUsername = async (req, res) => {
 
     res.status(200).json(user); // If the user is found (i.e., if user is not null), send a 200 OK status code and the user in the response. The 200 status code indicates that the request was successful.
   } catch (error) {
-    res.status(500).json({ error: error.message }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
   }
 };
 // Log in a user on the POST /api/login route
 const login = async (req, res) => {
-  res.status(200).json({ message: "Login successful", userData: req.userData }); // Send a 200 OK status code and a success message in the response. The success message includes the username that the client sent in the request body. This is a placeholder for the actual login logic, which would involve authenticating the user's credentials and possibly generating a session or token.
+  try {
+    // https://www.npmjs.com/package/jsonwebtoken
+
+    // Login does 2 things: manual login AND persistent login
+
+    // Find a way for login to check which type to use.
+
+    if (req.authCheck) {
+      const user = {
+        id: req.authCheck.id,
+        username: req.authCheck.username,
+      };
+
+      res.status(201).json({ message: "persistent login successful", user: user });
+      return;
+    }
+
+    const token = jwt.sign({ id: req.user.id }, process.env.SECRET);
+
+    console.log(token);
+
+    const user = {
+      id: req.user.id,
+      username: req.user.username,
+      token: token,
+    };
+
+    res.status(201).json({ message: "login success", user: user });
+  } catch (error) {
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } });
+  }
 };
 // Update a username on the PUT /api/users/:username route
 const updateUserByUsername = async (req, res) => {
@@ -55,7 +86,7 @@ const updateUserByUsername = async (req, res) => {
     const updatedUser = await User.findOne({ where: { username: username } }); // If the number of affected rows is not zero (i.e., if the user was successfully updated) then use the User model's findOne method to get the updated user from the database. This method returns a promise that resolves to the updated user.
     res.status(200).json(updatedUser); // Send a 200 OK status code and the updated user in the response. The 200 status code indicates that the request was successful.
   } catch (error) {
-    res.status(500).json({ error: error.message }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
   }
 };
 // Delete a username on the DELETE /api/users/:username route
@@ -69,7 +100,7 @@ const deleteUserByUsername = async (req, res) => {
 
     res.status(204).json("User deleted"); // If the number of affected rows is not zero (i.e., if the user was successfully deleted) then send a 204 No Content status code and a message in the response. The 204 status code indicates that the request was successful, but there's no representation to return (i.e., the response is empty).
   } catch (error) {
-    res.status(500).json({ error: error.message }); // Use the User model's destroy method to delete the user with the specified username from the database. This method returns a promise that resolves to the number of affected rows.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // Use the User model's destroy method to delete the user with the specified username from the database. This method returns a promise that resolves to the number of affected rows.
   }
 };
 
