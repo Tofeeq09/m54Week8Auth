@@ -40,38 +40,25 @@ const getUserByUsername = async (req, res) => {
     res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
   }
 };
-// Log in a user on the POST /api/login route
+// Log in a user on the POST /api/login route. This route handles both manual login and persistent login.
 const login = async (req, res) => {
   try {
     // https://www.npmjs.com/package/jsonwebtoken
 
-    // Login does 2 things: manual login AND persistent login
-
-    // Find a way for login to check which type to use.
-
     if (req.authCheck) {
-      const user = {
-        id: req.authCheck.id,
-        username: req.authCheck.username,
-      };
+      const user = { id: req.authCheck.id, username: req.authCheck.username }; // Create a response object that includes the user's id and username, token is not needed as the client already has it. This object will be sent back to the client in the response.
 
       res.status(201).json({ message: "persistent login successful", user: user });
-      return;
+      return; // End the function execution here. The following code will not be executed.
     }
 
-    const token = jwt.sign({ id: req.user.id }, process.env.SECRET);
+    const token = jwt.sign({ id: req.user.id }, process.env.SECRET); // Create a new JWT using the jsonwebtoken library. The jwt.sign() method takes a payload (in this case, the user's id) and a secret key as arguments, and returns a new JWT. The secret key should be stored in an environment variable for security. The JWT is a string that contains the payload and a signature, and it can be used to authenticate the user in future requests.
 
-    console.log(token);
-
-    const user = {
-      id: req.user.id,
-      username: req.user.username,
-      token: token,
-    };
+    const user = { id: req.user.id, username: req.user.username, token: token }; // Create a response object that includes the user's id, username, and token. This object will be sent back to the client in the response.
 
     res.status(201).json({ message: "login success", user: user });
   } catch (error) {
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } });
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the jsonwebtoken library, a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
 };
 // Update a username on the PUT /api/users/:username route
