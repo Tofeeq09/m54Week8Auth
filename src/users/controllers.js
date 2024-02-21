@@ -67,7 +67,7 @@ const deleteUserByUsername = async (req, res) => {
       res.status(404).json({ message: `User with username ${username} not found` }); // If the number of affected rows is zero (i.e., if the user was not found in the database) then send a 404 Not Found status code and a message in the response. The 404 status code indicates that the requested resource could not be found on the server.
     }
 
-    res.status(204).send("User deleted"); // If the number of affected rows is not zero (i.e., if the user was successfully deleted) then send a 204 No Content status code and a message in the response. The 204 status code indicates that the request was successful, but there's no representation to return (i.e., the response is empty).
+    res.status(204).json("User deleted"); // If the number of affected rows is not zero (i.e., if the user was successfully deleted) then send a 204 No Content status code and a message in the response. The 204 status code indicates that the request was successful, but there's no representation to return (i.e., the response is empty).
   } catch (error) {
     res.status(500).json({ error: error.message }); // Use the User model's destroy method to delete the user with the specified username from the database. This method returns a promise that resolves to the number of affected rows.
   }
