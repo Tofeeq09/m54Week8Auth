@@ -19,7 +19,7 @@ app.use(express.json()); // Use the built-in Express.js middleware for parsing J
 // Mounting apiRouter on app
 app.use("/api", apiRouter); // Mount the apiRouter on the path "/api". This means that any route defined in apiRouter will be prefixed with "/api". This is a common pattern in Express.js applications to prefix all API routes with "/api" to distinguish them from other routes, such as those serving static files or client-side applications.
 // Mounting routers on apiRouter
-apiRouter.use("/user", userRouter); // Mount the UserRouter on the path "/users". This means that any route defined in UserRouter will be prefixed with "/users". This is a common pattern in Express.js applications to modularize routes and make the code more maintainable.
+apiRouter.use("/users", userRouter); // Mount the UserRouter on the path "/users". This means that any route defined in UserRouter will be prefixed with "/users". This is a common pattern in Express.js applications to modularize routes and make the code more maintainable.
 apiRouter.use("/signup", signupRouter); // Mount the SignupRouter on the path "/signup". This means that any route defined in SignupRouter will be prefixed with "/signup". This allows us to group all signup-related routes together, which can make the code easier to understand and maintain.
 apiRouter.use("/login", loginRouter); // Mount the LoginRouter on the path "/login". This means that any route defined in LoginRouter will be prefixed with "/login". This allows us to group all login-related routes together, which can make the code easier to understand and maintain.
 
