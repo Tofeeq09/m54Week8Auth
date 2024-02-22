@@ -1,6 +1,7 @@
 //  Importing Internal Dependencies
 const User = require("./model"); // Import the User model from the model.js file. This model represents the users table in the database and can be used to run queries on this table.
 const jwt = require("jsonwebtoken"); // Import the jsonwebtoken library, which provides functions for creating and verifying JSON Web Tokens (JWTs). JWTs are a compact, URL-safe means of representing claims to be transferred between two parties. The claims in a JWT are encoded as a JSON object that is used as the payload of a JSON Web Signature (JWS) structure or as the plaintext of a JSON Web Encryption (JWE) structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted.
+const { UniqueConstraintError } = require("sequelize");
 
 // Route handler / Controller functions
 // Create a new user on the POST /api/signup route
@@ -83,18 +84,16 @@ const updateUserByUsername = async (req, res) => {
 
     await User.update({ username, email, password }, { where: { username: oldUsername } }); // Only if the user's data has been changed, use the User model's update method to update the user's data in the database. This method takes two arguments: an object containing the new username, email, and password, and an object containing the where clause to specify which user to update. It returns a promise that resolves to the number of affected rows.
 
-    const updatedUser = await User.findOne({ where: { username } });
-    username = updatedUser.username;
-    email = updatedUser.email;
-
     if (req.usernameChanged) {
-      updateMessage.push(`username updated from ${oldUsername} to ${username}`);
+      username = req.body.username; // If the username has been changed, update the username variable with the new username from the request body.
+      updateMessage.push(`username updated from ${oldUsername} to ${username}`); // Add a message to the updateMessage array indicating that the username has been updated.
     }
     if (req.emailChanged) {
-      updateMessage.push(`email updated from ${req.user.email} to ${email}`);
+      email = req.body.email; // If the email has been changed, update the email variable with the new email from the request body.
+      updateMessage.push(`email updated from ${req.user.email} to ${email}`); // Add a message to the updateMessage array indicating that the email has been updated.
     }
     if (req.passwordChanged) {
-      updateMessage.push(`password updated`);
+      updateMessage.push(`password updated`); // If the password has been changed, add a message to the updateMessage array indicating that the password has been updated.
     }
 
     const userResponse = {
@@ -102,10 +101,11 @@ const updateUserByUsername = async (req, res) => {
       username: username,
       email: email,
       updateMessage: updateMessage,
-    };
-    res.status(200).json(userResponse);
+    }; // Create a response object that includes the user's id, updated username, updated email, and updateMessage. This object will be sent back to the client in the response.
+
+    res.status(200).json(userResponse); // Send a 200 OK status code and the userResponse object in the response. The 200 status code indicates that the request was successful.
   } catch (error) {
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } });
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
 };
 // Delete a username on the DELETE /api/users/:username route

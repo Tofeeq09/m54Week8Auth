@@ -16,6 +16,7 @@ const {
   checkUsernameChanged,
   checkEmailChanged,
   checkPasswordChanged,
+  validateEmailFormat,
 } = require("../middleware/validation"); // Import the validation middleware functions from the validation.js file. These functions are used to validate user input and perform checks before updating user data. For example, the fetchUser function retrieves a user from the database, the checkUsernameChanged function checks if the username has been changed, and the checkEmailChanged function checks if the email has been changed.
 
 // Router Initializations
@@ -32,6 +33,7 @@ userRouter.put(
   tokenCheck,
   fetchUser,
   checkUsernameChanged,
+  validateEmailFormat,
   checkEmailChanged,
   checkPasswordChanged,
   hashPassword,
@@ -39,10 +41,10 @@ userRouter.put(
 );
 userRouter.delete("/:username", tokenCheck, deleteUserByUsername); // Define a DELETE route at the path "/:username". When this route is hit, the deleteUserByUsername controller function is called. This function deletes the user with the specified username from the database and sends a success message in the response.
 // Sign up Route
-signupRouter.post("/", hashPassword, signup); // Define a POST route at the path "/". When this route is hit, the hashPassword middleware function is called first, then the signup controller function is called. The hashPassword function hashes the password from the request body, and the signup function creates a new user with the hashed password and starts a new session.
+signupRouter.post("/", validateEmailFormat, hashPassword, signup); // Define a POST route at the path "/". When this route is hit, the hashPassword middleware function is called first, then the signup controller function is called. The hashPassword function hashes the password from the request body, and the signup function creates a new user with the hashed password and starts a new session.
 // Login Route
 loginRouter.get("/authCheck", tokenCheck, login); // Define a GET route at the path "/authCheck". When this route is hit, the tokenCheck middleware function is called first, then the login controller function is called. The tokenCheck function checks if the user has a valid token, and the login function starts a new session if the token is valid.
-loginRouter.post("/", comparePassword, login); // Define a POST route at the path "/". When this route is hit, the comparePassword middleware function is called first, then the login controller function is called. The comparePassword function compares the password from the request body with the hashed password in the database, and the login function starts a new session if the passwords match.
+loginRouter.post("/", validateEmailFormat, comparePassword, login); // Define a POST route at the path "/". When this route is hit, the comparePassword middleware function is called first, then the login controller function is called. The comparePassword function compares the password from the request body with the hashed password in the database, and the login function starts a new session if the passwords match.
 
 // Export userRouter
 module.exports = {
