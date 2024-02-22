@@ -19,8 +19,14 @@ const signup = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll(); // Use the User model's findAll method to get all users from the database. This method returns a promise that resolves to an array of all users.
+    if (!users.length) {
+      res.status(404).json({ message: "No users found" }); // If the array of users is empty (i.e., if there are no users in the database) then send a 404 Not Found status code and a message in the response. The 404 status code indicates that the requested resource could not be found on the server.
+      return; // End the function execution here. The following code will not be executed.
+    }
 
-    res.status(200).json(users); // Send a 200 OK status code and the array of users in the response. The 200 status code indicates that the request was successful.
+    const usersResponse = users.map((user) => ({ id: user.id, username: user.username, email: user.email })); // Create a response array that includes the id, username, and email of each user. This array will be sent back to the client in the response.
+
+    res.status(200).json(usersResponse); // Send a 200 OK status code and the array of users in the response. The 200 status code indicates that the request was successful.
   } catch (error) {
     res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
@@ -35,7 +41,9 @@ const getUserByUsername = async (req, res) => {
       return; // End the function execution here. The following code will not be executed.
     }
 
-    res.status(200).json(user); // If the user is found (i.e., if user is not null), send a 200 OK status code and the user in the response. The 200 status code indicates that the request was successful.
+    const userResponse = { id: user.id, username: user.username, email: user.email }; // Create a response object that includes the user's id, username, and email. This object will be sent back to the client in the response.
+
+    res.status(200).json(userResponse); // Send a 200 OK status code and the userResponse object in the response. The 200 status code indicates that the request was successful.
   } catch (error) {
     res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
   }
@@ -48,7 +56,7 @@ const login = async (req, res) => {
     if (req.authCheck) {
       const user = { id: req.authCheck.id, username: req.authCheck.username }; // Create a response object that includes the user's id and username, token is not needed as the client already has it. This object will be sent back to the client in the response.
 
-      res.status(201).json({ message: "persistent login successful", user: user });
+      res.status(201).json({ message: "persistent login successful", user: user }); // Send a 201 Created status code and the user object in the response. The 201 status code indicates that a new resource was successfully created.
       return; // End the function execution here. The following code will not be executed.
     }
 
@@ -56,7 +64,7 @@ const login = async (req, res) => {
 
     const user = { id: req.user.id, username: req.user.username, token: token }; // Create a response object that includes the user's id, username, and token. This object will be sent back to the client in the response.
 
-    res.status(201).json({ message: "login success", user: user });
+    res.status(201).json({ message: "login success", user: user }); // Send a 201 Created status code and the user object in the response. The 201 status code indicates that a new resource was successfully created.
   } catch (error) {
     res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the jsonwebtoken library, a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
