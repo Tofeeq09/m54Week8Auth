@@ -20,7 +20,7 @@ app.use(express.json()); // Use the built-in Express.js middleware for parsing J
 app.use(
   // Use the built-in Express.js middleware for setting HTTP headers. This middleware is used to set the Access-Control-Allow-Origin header, which controls which origins are allowed to access the server. This is necessary for allowing requests from the client application, which may be running on a different domain or port.
   cors({
-    origin: "http://localhost:5002", // Allow requests from the specified origin. This is a common configuration for development environments, where the client and server are running on different ports. In a production environment, this would be set to the domain of the deployed client application.
+    origin: ["http://localhost:5002", "https://m54week9front.netlify.app"], // Allow requests from the specified origin. This is a common configuration for development environments, where the client and server are running on different ports. In a production environment, this would be set to the domain of the deployed client application.
   })
 );
 
