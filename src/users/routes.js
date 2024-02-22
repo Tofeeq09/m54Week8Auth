@@ -11,6 +11,12 @@ const {
   deleteUserByUsername,
 } = require("./controllers"); // Import the controller functions from the controllers.js file. These functions handle the logic for the different routes. Each function corresponds to a specific route and HTTP method, and contains the logic to handle requests to that route.
 const { hashPassword, comparePassword, tokenCheck } = require("../middleware/auth"); // Import the authentication middleware functions from the auth.js file. These functions are used to hash and compare passwords. The hashPassword function is used to securely hash a password before storing it in the database, and the comparePassword function is used to compare a hashed password with a plain-text one, such as when validating user credentials during login.
+const {
+  fetchUser,
+  checkUsernameChanged,
+  checkEmailChanged,
+  checkPasswordChanged,
+} = require("../middleware/validation"); // Import the validation middleware functions from the validation.js file. These functions are used to validate user input and perform checks before updating user data. For example, the fetchUser function retrieves a user from the database, the checkUsernameChanged function checks if the username has been changed, and the checkEmailChanged function checks if the email has been changed.
 
 // Router Initializations
 const userRouter = Router(); // Initialize a new router object for user-related routes. This object will be used to define routes related to users. Each route will be attached to this router object and will be relative to the path where this router is used in the main server file.
@@ -21,7 +27,16 @@ const loginRouter = Router(); // Initialize a new router object for the login ro
 // User Routes
 userRouter.get("/", getAllUsers); // Define a GET route at the path "/". When this route is hit, the getAllUsers controller function is called. This function retrieves all users from the database and sends them in the response.
 userRouter.get("/:username", getUserByUsername); // Define a GET route at the path "/:username". When this route is hit, the getUserByUsername controller function is called. This function retrieves a user with the specified username from the database and sends it in the response.
-userRouter.put("/:username", tokenCheck, updateUserByUsername); // Define a PUT route at the path "/:username". When this route is hit, the updateUserByUsername controller function is called. This function updates the user with the specified username in the database and sends the updated user in the response.
+userRouter.put(
+  "/:username",
+  tokenCheck,
+  fetchUser,
+  checkUsernameChanged,
+  checkEmailChanged,
+  checkPasswordChanged,
+  hashPassword,
+  updateUserByUsername
+);
 userRouter.delete("/:username", tokenCheck, deleteUserByUsername); // Define a DELETE route at the path "/:username". When this route is hit, the deleteUserByUsername controller function is called. This function deletes the user with the specified username from the database and sends a success message in the response.
 // Sign up Route
 signupRouter.post("/", hashPassword, signup); // Define a POST route at the path "/". When this route is hit, the hashPassword middleware function is called first, then the signup controller function is called. The hashPassword function hashes the password from the request body, and the signup function creates a new user with the hashed password and starts a new session.
