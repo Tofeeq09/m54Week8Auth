@@ -37,6 +37,12 @@ const hashPassword = async (req, res, next) => {
 const comparePassword = async (req, res, next) => {
   try {
     const { email, password } = req.body; // Extract the email and password (both string data types) from the request body (an object data type) using object destructuring. These are the credentials that the user has entered in the login form.
+
+    if (!email || !password) {
+      res.status(400).json({ message: "Email and password are required" });
+      return;
+    }
+
     const user = await User.findOne({ where: { email } }); // Find the user by email. The function User.findOne() takes an object with a where property that specifies the condition to match. It returns a promise that resolves to the first user that matches the condition or null if no user matches. This is how we retrieve the user's data from the database.
     if (!user) {
       res.status(404).json({ message: "User not found" }); // If no user is found, send a 404 Not Found status code and a message in the response. This means that there is no user in the database with the entered username.

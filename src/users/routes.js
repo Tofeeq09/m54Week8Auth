@@ -39,7 +39,7 @@ userRouter.put(
   hashPassword,
   updateUserByUsername
 );
-userRouter.delete("/:username", tokenCheck, checkPasswordChanged, deleteUserByUsername); // Define a DELETE route at the path "/:username". When this route is hit, the deleteUserByUsername controller function is called. This function deletes the user with the specified username from the database and sends a success message in the response.
+userRouter.delete("/:username", tokenCheck, comparePassword, deleteUserByUsername); // Define a DELETE route at the path "/:username". When this route is hit, the deleteUserByUsername controller function is called. This function deletes the user with the specified username from the database and sends a success message in the response.
 // Sign up Route
 signupRouter.post("/", validateEmailFormat, hashPassword, signup); // Define a POST route at the path "/". When this route is hit, the hashPassword middleware function is called first, then the signup controller function is called. The hashPassword function hashes the password from the request body, and the signup function creates a new user with the hashed password and starts a new session.
 // Login Route

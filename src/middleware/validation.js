@@ -53,10 +53,25 @@ const checkPasswordChanged = async (req, res, next) => {
   next();
 };
 
+const checkPasswordMatches = async (req, res, next) => {
+  const { password } = req.body;
+  req.passwordMatches = false;
+
+  if (password) {
+    const isMatch = await bcrypt.compare(password, req.user.password);
+    if (isMatch) {
+      req.passwordMatches = true;
+    }
+  }
+
+  next();
+};
+
 module.exports = {
   fetchUser,
   checkUsernameChanged,
   validateEmailFormat,
   checkEmailChanged,
   checkPasswordChanged,
+  checkPasswordMatches,
 };

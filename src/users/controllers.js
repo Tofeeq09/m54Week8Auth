@@ -141,26 +141,18 @@ const updateUserByUsername = async (req, res) => {
 // Delete a username on the DELETE /api/users/:username route
 const deleteUserByUsername = async (req, res) => {
   try {
-    const { username } = req.params; // Extract the username from the request parameters. This is the username that the client has included in the URL.
+    const { username } = req.params;
+    const user = req.user;
 
-    const user = await User.findOne({ where: { username } }); // Use the User model's findOne method to get the user with the specified username from the database. This method returns a promise that resolves to the user if found, or null if not found.
-    if (!user) {
-      res.status(404).json({ message: `User with username ${username} not found` }); // If the user is not found (i.e., if user is null), send a 404 Not Found status code and a message in the response. The 404 status code indicates that the requested resource could not be found on the server.
-      return; // End the function execution here. The following code will not be executed.
+    if (user.username !== username) {
+      res.status(400).json({ message: "Invalid credentials" });
+      return;
     }
 
-    if (!req.passwordChanged) {
-      res.status(400).json({ message: "Invalid credentials" }); // If the user's credentials are not valid, send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
-      return; // End the function execution here. The following code will not be executed.
-    }
-
-    await User.destroy({ where: { username } }); // Use the User model's destroy method to delete the user with the specified username from the database. This method returns a promise that resolves to the number of affected rows.
-
-    res.status(200).json({ message: `User with username ${username} deleted` }); // Send a 200 OK status code and a message in the response. The 200 status code indicates that the request was successful.
-    return; // End the function execution here. The following code will not be executed.
+    await User.destroy({ where: { username } });
+    res.status(200).json({ message: `User with username ${username} deleted` });
   } catch (error) {
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error details in the response.
-    return; // End the function execution here. The following code will not be executed.
+    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } });
   }
 };
 
