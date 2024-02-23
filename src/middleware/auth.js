@@ -39,8 +39,8 @@ const comparePassword = async (req, res, next) => {
     const { email, password } = req.body; // Extract the email and password (both string data types) from the request body (an object data type) using object destructuring. These are the credentials that the user has entered in the login form.
 
     if (!email || !password) {
-      res.status(400).json({ message: "Email and password are required" });
-      return;
+      res.status(400).json({ message: "Email and password are required" }); // If the email or password is not provided, send a 400 Bad Request status code and a message in the response. This means that the user has not entered both the email and password in the login form.
+      return; // Return early to prevent the next() function from being called. This stops the middleware chain and prevents the route handler from being called.
     }
 
     const user = await User.findOne({ where: { email } }); // Find the user by email. The function User.findOne() takes an object with a where property that specifies the condition to match. It returns a promise that resolves to the first user that matches the condition or null if no user matches. This is how we retrieve the user's data from the database.
@@ -62,50 +62,9 @@ const comparePassword = async (req, res, next) => {
     res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the bcrypt library, a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
 };
-// Token check middleware for the GET /authCheck route
-const tokenCheck = async (req, res, next) => {
-  try {
-    // console.log(req.header("Authorization"));
-    // 1. check request headers - does Authorization exist
-
-    if (!req.header("Authorization")) {
-      throw new Error("No token passed"); // If the Authorization header is not present in the request, throw an error. This is how we check if the user has provided a token in the request.
-    }
-
-    // 2. get the JWT from the headers
-
-    const token = req.header("Authorization").replace("Bearer ", ""); // Extract the JWT from the Authorization header. The Authorization header is used to send credentials in the form of a JWT. The replace() method is used to remove the "Bearer " prefix from the JWT. This is how we extract the JWT from the header.
-
-    // 3. decode the token using SECRET
-
-    const decodedToken = jwt.verify(token, process.env.SECRET); // Decode the JWT using the secret key. The jwt.verify() function takes the JWT and the secret key as arguments and returns the decoded payload if the token is valid. This is how we verify the user's token.
-
-    // 4. get user with id
-
-    const user = await User.findOne({ where: { id: decodedToken.id } }); // Find the user by ID. The function User.findOne() takes an object with a where property that specifies the condition to match. It returns a promise that resolves to the first user that matches the condition or null if no user matches. This is how we retrieve the user's data from the database.
-
-    // 5. if !user send 401 response
-
-    if (!user) {
-      res.status(401).json({ message: "not authorized" }); // If no user is found, send a 401 Unauthorized status code and a message in the response. This means that the token is not valid or the user does not exist in the database.
-      return; // Return early to prevent the next() function from being called. This stops the middleware chain and prevents the route handler from being called.
-    }
-
-    // 6. pass on user data to login function
-
-    //
-    req.user = user; // Attach the user's data to req.user
-    //
-    req.authCheck = user; // If the user is found, attach the user's data to the request object. This is how we authenticate the user and start a new session.
-
-    next(); // If the user is found, call the next middleware function or the route handler in the stack. This could be another middleware function that performs additional processing, or it could be the route handler that responds to the request.
-  } catch (error) {
-    res.status(501).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 501 Not Implemented status code and the error message in the response. This could be due to a problem with the jwt library, a problem with the User model, a problem with the request headers, or a problem with the server itself.
-  }
-};
 
 // Export the hashPassword and comparePassword middleware functions
-module.exports = { hashPassword, comparePassword, tokenCheck }; // Export the hashPassword and comparePassword middleware functions for use in other files. These functions can be used in the route definitions to perform password hashing and comparison before the route handlers are called.
+module.exports = { hashPassword, comparePassword }; // Export the hashPassword and comparePassword middleware functions for use in other files. These functions can be used in the route definitions to perform password hashing and comparison before the route handlers are called.
 
 // Status code 401 is used when a user is not authorized to access a resource.
 // Status code 402 is used when a user needs to authenticate to access a resource.

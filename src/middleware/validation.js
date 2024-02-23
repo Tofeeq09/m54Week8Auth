@@ -6,65 +6,67 @@ const validator = require("validator"); // Import the validator library, which p
 const User = require("../users/model"); // Import the User model from the users module, which defines the structure of user data in the database. This model represents the users table in the database and provides methods for querying this table.
 
 const fetchUser = async (req, res, next) => {
-  const oldUsername = req.params.username;
-  const user = await User.findOne({ where: { username: oldUsername } });
+  const oldUsername = req.params.username; // Retrieve the old username from the request parameters. This is the username of the user that we want to update. The request parameters are part of the URL and are used to pass data to the server. In this case, the username is passed as a parameter in the URL, such as /users/:username, where :username is the parameter.
+  const user = await User.findOne({ where: { username: oldUsername } }); // Use the findOne method of the User model to find a user with the specified username. The where option is used to specify the conditions for the query. In this case, we want to find a user with the username equal to the old username. The findOne method returns a Promise, so we use the await keyword to wait for the result.
 
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    res.status(404).json({ message: "User not found" }); // If no user is found with the specified username, respond with a status code of 404 and a JSON object containing an error message. The status() method sets the HTTP status for the response, and the json() method sends a JSON response.
+    return; // Return early to exit the middleware function. This prevents the next() function from being called, which would pass control to the next middleware or route handler.
   }
 
-  req.user = user;
-  next();
+  req.user = user; // Attach the user object to the request object. This makes the user object available to other middleware functions and route handlers that are executed after this one. The request object is passed along the middleware chain, so any data attached to it is accessible to subsequent middleware and route handlers.
+  next(); // Call the next() function to pass control to the next middleware or route handler. This is necessary to continue processing the request and ensure that the response is sent back to the client.
 };
 
 const checkUsernameChanged = (req, res, next) => {
-  const { username } = req.body;
-  req.usernameChanged = username !== undefined && req.user.username !== username;
-  next();
+  const { username } = req.body; // Retrieve the new username from the request body. This is the username that the client wants to update. The request body is part of the HTTP request and contains data sent by the client, typically in a POST or PUT request. In this case, the username is sent as part of the request body, such as { username: "newUsername" }.
+  req.usernameChanged = username !== undefined && req.user.username !== username; // Check if the username has been changed. If the new username is different from the old username, set the usernameChanged property on the request object to true. Otherwise, set it to false. This property is used to track whether the username has been changed in the request.
+  next(); // Call the next() function to pass control to the next middleware or route handler. This is necessary to continue processing the request and ensure that the response is sent back to the client.
 };
 
 const validateEmailFormat = (req, res, next) => {
-  const { email } = req.body;
+  const { email } = req.body; // Retrieve the email from the request body. This is the email that the client wants to update. The request body is part of the HTTP request and contains data sent by the client, typically in a POST or PUT request. In this case, the email is sent as part of the request body, such as { email: "
 
   if (email && !validator.isEmail(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
+    res.status(400).json({ message: "Invalid email format" }); // If the email is provided and it is not a valid email format, respond with a status code of 400 and a JSON object containing an error message. The status() method sets the HTTP status for the response, and the json() method sends a JSON response.
+    return; // Return early to exit the middleware function. This prevents the next() function from being called, which would pass control to the next middleware or route handler.
   }
 
-  next();
+  next(); // Call the next() function to pass control to the next middleware or route handler. This is necessary to continue processing the request and ensure that the response is sent back to the client.
 };
 
 const checkEmailChanged = (req, res, next) => {
-  const { email } = req.body;
-  req.emailChanged = email !== undefined && req.user.email !== email;
-  next();
+  const { email } = req.body; // Retrieve the new email from the request body. This is the email that the client wants to update. The request body is part of the HTTP request and contains data sent by the client, typically in a POST or PUT request. In this case, the email is sent as part of the request body, such as { email: "
+  req.emailChanged = email !== undefined && req.user.email !== email; // Check if the email has been changed. If the new email is different from the old email, set the emailChanged property on the request object to true. Otherwise, set it to false. This property is used to track whether the email has been changed in the request.
+  next(); // Call the next() function to pass control to the next middleware or route handler. This is necessary to continue processing the request and ensure that the response is sent back to the client.
 };
 
 const checkPasswordChanged = async (req, res, next) => {
-  const { password } = req.body;
-  req.passwordChanged = false;
+  const { password } = req.body; // Retrieve the new password from the request body. This is the password that the client wants to update. The request body is part of the HTTP request and contains data sent by the client, typically in a POST or PUT request. In this case, the password is sent as part of the request body, such as { password: "newPassword" }.
+  req.passwordChanged = false; // Initialize the passwordChanged property on the request object to false. This property is used to track whether the password has been changed in the request.
 
   if (password) {
-    const isMatch = await bcrypt.compare(password, req.user.password);
-    if (!isMatch) {
-      req.passwordChanged = true;
+    const match = await bcrypt.compare(password, req.user.password); // Use the compare method of the bcrypt library to compare the new password with the hashed password stored in the database. The compare method returns a Promise, so we use the await keyword to wait for the result.
+    if (!match) {
+      req.passwordChanged = true; // If the new password does not match the hashed password in the database, set the passwordChanged property on the request object to true. This indicates that the password has been changed in the request.
     }
   }
 
-  next();
+  next(); // Call the next() function to pass control to the next middleware or route handler. This is necessary to continue processing the request and ensure that the response is sent back to the client.
 };
 
 const checkPasswordMatches = async (req, res, next) => {
-  const { password } = req.body;
-  req.passwordMatches = false;
+  const { password } = req.body; // Retrieve the password from the request body. This is the password that the client wants to update. The request body is part of the HTTP request and contains data sent by the client, typically in a POST or PUT request. In this case, the password is sent as part of the request body, such as { password: "newPassword" }.
+  req.passwordMatches = false; // Initialize the passwordMatches property on the request object to false. This property is used to track whether the password matches the hashed password in the database.
 
   if (password) {
-    const isMatch = await bcrypt.compare(password, req.user.password);
+    const isMatch = await bcrypt.compare(password, req.user.password); // Use the compare method of the bcrypt library to compare the new password with the hashed password stored in the database. The compare method returns a Promise, so we use the await keyword to wait for the result.
     if (isMatch) {
-      req.passwordMatches = true;
+      req.passwordMatches = true; // If the new password matches the hashed password in the database, set the passwordMatches property on the request object to true. This indicates that the password matches the hashed password in the database.
     }
   }
 
-  next();
+  next(); // Call the next() function to pass control to the next middleware or route handler. This is necessary to continue processing the request and ensure that the response is sent back to the client.
 };
 
 module.exports = {
@@ -74,4 +76,4 @@ module.exports = {
   checkEmailChanged,
   checkPasswordChanged,
   checkPasswordMatches,
-};
+}; // Export the validation middleware functions for use in other files. These functions perform checks and validations on user input, and are used to ensure that the data provided by the client is valid and safe to use in the application. This helps to prevent security vulnerabilities and data corruption.
