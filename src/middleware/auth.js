@@ -87,6 +87,9 @@ const tokenCheck = async (req, res, next) => {
 
     // 6. pass on user data to login function
 
+    //
+    req.user = user; // Attach the user's data to req.user
+    //
     req.authCheck = user; // If the user is found, attach the user's data to the request object. This is how we authenticate the user and start a new session.
 
     next(); // If the user is found, call the next middleware function or the route handler in the stack. This could be another middleware function that performs additional processing, or it could be the route handler that responds to the request.

@@ -19,14 +19,14 @@ const fetchUser = async (req, res, next) => {
 
 const checkUsernameChanged = (req, res, next) => {
   const { username } = req.body;
-  req.usernameChanged = req.user.username !== username;
+  req.usernameChanged = username !== undefined && req.user.username !== username;
   next();
 };
 
 const validateEmailFormat = (req, res, next) => {
   const { email } = req.body;
 
-  if (!validator.isEmail(email)) {
+  if (email && !validator.isEmail(email)) {
     return res.status(400).json({ message: "Invalid email format" });
   }
 
@@ -35,7 +35,7 @@ const validateEmailFormat = (req, res, next) => {
 
 const checkEmailChanged = (req, res, next) => {
   const { email } = req.body;
-  req.emailChanged = req.user.email !== email;
+  req.emailChanged = email !== undefined && req.user.email !== email;
   next();
 };
 
