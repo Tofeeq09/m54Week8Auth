@@ -13,7 +13,6 @@ const {
 const { hashPassword, comparePassword } = require("../middleware/auth"); // Import the authentication middleware functions from the auth.js file. These functions are used to hash and compare passwords. The hashPassword function is used to securely hash a password before storing it in the database, and the comparePassword function is used to compare a hashed password with a plain-text one, such as when validating user credentials during login.
 const { verifyToken } = require("../middleware/verifyToken"); // Import the verifyToken middleware function from the verifyToken.js file. This function is used to verify the user's token and authenticate the user. It is used to protect routes that require authentication, such as the user profile or settings page. The middleware checks the request headers for a valid JWT, decodes the token using the secret key, retrieves the user from the database, and attaches the user's data to the request object. If the token is not valid or the user does not exist, the middleware sends a 401 Unauthorized status code in the response. This middleware is used in the route definitions to perform token verification before the route handlers are called.
 const {
-  fetchUser,
   checkUsernameChanged,
   checkEmailChanged,
   checkPasswordChanged,
@@ -32,7 +31,6 @@ userRouter.get("/:username", getUserByUsername); // Define a GET route at the pa
 userRouter.put(
   "/:username",
   verifyToken,
-  fetchUser,
   checkUsernameChanged,
   validateEmailFormat,
   checkEmailChanged,
