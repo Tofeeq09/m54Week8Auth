@@ -18,11 +18,11 @@ const signup = async (req, res) => {
 
       const field = error.errors[0].path; // Get the field (i.e., the column name) that caused the constraint violation. This will be either "username" or "email".
       if (field === "username") {
-        res.status(400).json({ message: "Username already exists" }); // If the field is "username", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
+        res.status(400).json({ message: "The username you entered is already taken" }); // If the field is "username", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
         return; // End the function execution here. The following code will not be executed.
       }
       if (field === "email") {
-        res.status(400).json({ message: "Email already exists" }); // If the field is "email", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
+        res.status(400).json({ message: "The email you entered is already associated with another account" }); // If the field is "email", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
         return; // End the function execution here. The following code will not be executed.
       }
     }
@@ -119,6 +119,20 @@ const updateUserByUsername = async (req, res) => {
 
     res.status(200).json(userResponse); // Send a 200 OK status code and the userResponse object in the response. The 200 status code indicates that the request was successful.
   } catch (error) {
+    if (error instanceof UniqueConstraintError) {
+      // If the error is an instance of UniqueConstraintError, it means that the username or email already exists in the database. This is a constraint violation, and it occurs when trying to insert or update a row with a value that already exists in the database. In this case, we want to send a more specific error message to the client.
+
+      const field = error.errors[0].path; // Get the field (i.e., the column name) that caused the constraint violation. This will be either "username" or "email".
+      if (field === "username") {
+        res.status(400).json({ message: "The username you entered is already taken" }); // If the field is "username", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
+        return; // End the function execution here. The following code will not be executed.
+      }
+      if (field === "email") {
+        res.status(400).json({ message: "The email you entered is already associated with another account" }); // If the field is "email", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
+        return; // End the function execution here. The following code will not be executed.
+      }
+    }
+
     res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
   }
 };
@@ -133,20 +147,6 @@ const deleteUserByUsername = async (req, res) => {
 
     res.status(204).json("User deleted"); // If the number of affected rows is not zero (i.e., if the user was successfully deleted) then send a 204 No Content status code and a message in the response. The 204 status code indicates that the request was successful, but there's no representation to return (i.e., the response is empty).
   } catch (error) {
-    if (error instanceof UniqueConstraintError) {
-      // If the error is an instance of UniqueConstraintError, it means that the username or email already exists in the database. This is a constraint violation, and it occurs when trying to insert or update a row with a value that already exists in the database. In this case, we want to send a more specific error message to the client.
-
-      const field = error.errors[0].path; // Get the field (i.e., the column name) that caused the constraint violation. This will be either "username" or "email".
-      if (field === "username") {
-        res.status(400).json({ message: "Username already exists" }); // If the field is "username", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
-        return; // End the function execution here. The following code will not be executed.
-      }
-      if (field === "email") {
-        res.status(400).json({ message: "Email already exists" }); // If the field is "email", send a 400 Bad Request status code and a message in the response. The 400 status code indicates that the server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
-        return; // End the function execution here. The following code will not be executed.
-      }
-    }
-
     res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // Use the User model's destroy method to delete the user with the specified username from the database. This method returns a promise that resolves to the number of affected rows.
   }
 };
