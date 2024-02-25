@@ -2,7 +2,6 @@
 require("dotenv").config(); // Load environment variables from a .env file into process.env. This is done using the dotenv package, which reads the .env file in your project root and initializes those values as environment variables. It's a useful tool for managing sensitive data (like API keys) that should not be included in version control.
 const express = require("express"); // Import Express.js, a web application framework for Node.js. Express simplifies the process of building web applications by providing a simple and flexible API for defining routes, handling requests, and sending responses.
 const cors = require("cors"); // Import the CORS middleware, which is used to enable Cross-Origin Resource Sharing. This is necessary for allowing requests from the client application, which may be running on a different domain or port.
-const cookieParser = require("cookie-parser");
 
 // Importing Internal Dependencies - These are modules or components from our application's source code, which we've defined to structure our application.
 const { userRouter, signupRouter, loginRouter } = require("./users/routes"); // Import the routers for the user, login & signup routes from the users/routes.js file. This router defines the endpoint for the login operation, which authenticates a user and starts a new session.
