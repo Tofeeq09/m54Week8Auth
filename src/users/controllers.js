@@ -1,4 +1,5 @@
 //  Importing Internal Dependencies
+const { query } = require("express");
 const User = require("./model"); // Import the User model from the model.js file. This model represents the users table in the database and can be used to run queries on this table.
 const jwt = require("jsonwebtoken"); // Import the jsonwebtoken library, which provides functions for creating and verifying JSON Web Tokens (JWTs). JWTs are a compact, URL-safe means of representing claims to be transferred between two parties. The claims in a JWT are encoded as a JSON object that is used as the payload of a JSON Web Signature (JWS) structure or as the plaintext of a JSON Web Encryption (JWE) structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted.
 const { UniqueConstraintError } = require("sequelize");
@@ -62,7 +63,7 @@ const login = async (req, res) => {
 // GET /api/users route - This route retrieves all users from the database.
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll(); // Use the User model's findAll method to get all users from the database. This method returns a promise that resolves to an array of all users.
+    const users = await User.findAll({ where: req.query }); // Use the User model's findAll method to get all users from the database. This method returns a promise that resolves to an array of users. The where clause is used to filter the users based on the query parameters in the request.
     if (!users.length) {
       res.status(404).json({ message: "No users found" }); // If the array of users is empty (i.e., if there are no users in the database) then send a 404 Not Found status code and a message in the response. The 404 status code indicates that the requested resource could not be found on the server.
       return; // End the function execution here. The following code will not be executed.
@@ -114,14 +115,14 @@ const updateUserByUsername = async (req, res) => {
 
     if (req.usernameChanged) {
       username = req.body.username; // If the username has been changed, update the username variable with the new username from the request body.
-      updateMessage.push(`username updated from ${oldUsername} to ${username}`); // Add a message to the updateMessage array indicating that the username has been updated.
+      updateMessage.push(`Username updated from ${oldUsername} to ${username}`); // Add a message to the updateMessage array indicating that the username has been updated.
     }
     if (req.emailChanged) {
       email = req.body.email; // If the email has been changed, update the email variable with the new email from the request body.
-      updateMessage.push(`email updated from ${req.user.email} to ${email}`); // Add a message to the updateMessage array indicating that the email has been updated.
+      updateMessage.push(`Email updated from ${req.user.email} to ${email}`); // Add a message to the updateMessage array indicating that the email has been updated.
     }
     if (req.passwordChanged) {
-      updateMessage.push(`password updated`); // If the password has been changed, add a message to the updateMessage array indicating that the password has been updated.
+      updateMessage.push(`Password updated`); // If the password has been changed, add a message to the updateMessage array indicating that the password has been updated.
     }
 
     const userResponse = {

@@ -6,6 +6,7 @@ const cors = require("cors"); // Import the CORS middleware, which is used to en
 // Importing Internal Dependencies - These are modules or components from our application's source code, which we've defined to structure our application.
 const { userRouter, signupRouter, loginRouter } = require("./users/routes"); // Import the routers for the user, login & signup routes from the users/routes.js file. This router defines the endpoint for the login operation, which authenticates a user and starts a new session.
 const User = require("./users/model"); // Import the User model from the users/model.js file. This model represents the users table in the database. It defines the schema for the table and provides methods for interacting with the table.
+const { Book, Genre } = require("./books/model"); // Import the Book and Genre models from the books/model.js file. These models represent the books and genres tables in the database. They define the schema for the tables and provide methods for interacting with the tables.
 
 // Environment Variables
 const port = process.env.PORT || 5001; // Set the port for the server to listen on. This is either the PORT environment variable (if it is set) or 5001. The PORT environment variable is often set by deployment environments, while 5001 is a common default for local development.
@@ -19,7 +20,10 @@ app.use(express.json()); // Use the built-in Express.js middleware for parsing J
 
 app.use(
   // Use the built-in Express.js middleware for setting HTTP headers. This middleware is used to set the Access-Control-Allow-Origin header, which controls which origins are allowed to access the server. This is necessary for allowing requests from the client application, which may be running on a different domain or port.
-  cors() // The cors() function returns a middleware that sets the Access-Control-Allow-Origin header to allow requests from any origin. This is useful during development, but in a production environment, you would typically set this header to a specific origin or list of origins to prevent unauthorized access to your server.
+  cors({
+    origin: "http://localhost:5173", // The origin that is allowed to access the server. This is the URL of the client application, which is allowed to make requests to the server. In this case, the client application is running on http://localhost:5173.
+    credentials: true, // Indicates whether the server should include credentials (such as cookies or HTTP authentication) in the response. This is necessary for allowing the client application to send and receive cookies, which are used to maintain a session between the client and server.
+  })
 );
 
 // Mounting apiRouter on app
@@ -40,7 +44,16 @@ app.get("/health", (req, res) => {
 const syncTables = async () => {
   // Define an asynchronous function to synchronize the database tables with the models defined in our application.This function is called when the server starts, ensuring that our database schema matches the models we've defined in code. This is particularly useful during development, as it allows us to modify our models and have those changes reflected in the database without having to manually alter the database schema.
 
-  await User.sync(); // The sync method is a Sequelize method that synchronizes the model with the database by creating the corresponding table if it does not exist. If the table already exists, it does nothing. Note that this method is asynchronous and returns a Promise, so we use the await keyword to wait for it to complete before continuing.
+  // Define relationships
+  User.belongsToMany(Book, { through: "UserBooks" });
+  Book.belongsToMany(User, { through: "UserBooks" });
+  Book.belongsToMany(Genre, { through: "BookGenres" });
+  Genre.belongsToMany(Book, { through: "BookGenres" });
+
+  // Sync models with database
+  await User.sync();
+  await Book.sync();
+  await Genre.sync();
 };
 
 // Server
