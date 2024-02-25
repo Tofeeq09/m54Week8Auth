@@ -26,7 +26,7 @@ const loginRouter = Router(); // Initialize a new router object for the login ro
 
 // Routes
 // User Routes
-userRouter.get("/", getAllUsers); // Define a GET route at the path "/". When this route is hit, the getAllUsers controller function is called. This function retrieves all users from the database and sends them in the response.
+userRouter.get("/", verifyToken, getAllUsers); // Define a GET route at the path "/". When this route is hit, the getAllUsers controller function is called. This function retrieves all users from the database and sends them in the response.
 userRouter.get("/:username", getUserByUsername); // Define a GET route at the path "/:username". When this route is hit, the getUserByUsername controller function is called. This function retrieves a user with the specified username from the database and sends it in the response.
 userRouter.put(
   "/:username",
