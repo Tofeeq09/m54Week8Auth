@@ -22,7 +22,6 @@ app.use(
 
 // Middleware Setup
 app.use(express.json()); // Use the built-in Express.js middleware for parsing JSON. This allows us to access the body of HTTP requests in req.body. This is particularly useful when handling POST or PUT requests where the request body often contains the data we need.
-app.use(cookieParser());
 
 // Mounting apiRouter on app
 app.use("/api", apiRouter); // Mount the apiRouter on the path "/api". This means that any route defined in apiRouter will be prefixed with "/api". This is a common pattern in Express.js applications to prefix all API routes with "/api" to distinguish them from other routes, such as those serving static files or client-side applications.
