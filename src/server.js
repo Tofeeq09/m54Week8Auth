@@ -2,6 +2,7 @@
 require("dotenv").config(); // Load environment variables from a .env file into process.env. This is done using the dotenv package, which reads the .env file in your project root and initializes those values as environment variables. It's a useful tool for managing sensitive data (like API keys) that should not be included in version control.
 const express = require("express"); // Import Express.js, a web application framework for Node.js. Express simplifies the process of building web applications by providing a simple and flexible API for defining routes, handling requests, and sending responses.
 const cors = require("cors"); // Import the CORS middleware, which is used to enable Cross-Origin Resource Sharing. This is necessary for allowing requests from the client application, which may be running on a different domain or port.
+const cookieParser = require("cookie-parser");
 
 // Importing Internal Dependencies - These are modules or components from our application's source code, which we've defined to structure our application.
 const { userRouter, signupRouter, loginRouter } = require("./users/routes"); // Import the routers for the user, login & signup routes from the users/routes.js file. This router defines the endpoint for the login operation, which authenticates a user and starts a new session.
@@ -15,16 +16,14 @@ const port = process.env.PORT || 5001; // Set the port for the server to listen 
 const app = express(); // Initialize a new Express.js application. This application object is used to set up the middleware and routes. Express.js is a minimalist web application framework for Node.js, providing a robust set of features for building single and multi-page, and hybrid web applications.
 const apiRouter = express.Router(); // Initialize a new router. This router will be used to define the API routes. The Router is like a mini Express application, capable of performing middleware and routing functions. Each router effectively acts as a middleware itself.
 
-// Middleware Setup
-app.use(express.json()); // Use the built-in Express.js middleware for parsing JSON. This allows us to access the body of HTTP requests in req.body. This is particularly useful when handling POST or PUT requests where the request body often contains the data we need.
-
 app.use(
   // Use the built-in Express.js middleware for setting HTTP headers. This middleware is used to set the Access-Control-Allow-Origin header, which controls which origins are allowed to access the server. This is necessary for allowing requests from the client application, which may be running on a different domain or port.
-  cors({
-    origin: "http://localhost:5173", // The origin that is allowed to access the server. This is the URL of the client application, which is allowed to make requests to the server. In this case, the client application is running on http://localhost:5173.
-    credentials: true, // Indicates whether the server should include credentials (such as cookies or HTTP authentication) in the response. This is necessary for allowing the client application to send and receive cookies, which are used to maintain a session between the client and server.
-  })
+  cors() // Enable Cross-Origin Resource Sharing (CORS) for all routes. This middleware sets the Access-Control-Allow-Origin header to *, allowing requests from any origin. This is a common configuration for public APIs, but it can be customized to allow requests from specific origins.
 );
+
+// Middleware Setup
+app.use(express.json()); // Use the built-in Express.js middleware for parsing JSON. This allows us to access the body of HTTP requests in req.body. This is particularly useful when handling POST or PUT requests where the request body often contains the data we need.
+app.use(cookieParser());
 
 // Mounting apiRouter on app
 app.use("/api", apiRouter); // Mount the apiRouter on the path "/api". This means that any route defined in apiRouter will be prefixed with "/api". This is a common pattern in Express.js applications to prefix all API routes with "/api" to distinguish them from other routes, such as those serving static files or client-side applications.

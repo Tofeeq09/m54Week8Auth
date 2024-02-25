@@ -1,5 +1,4 @@
 //  Importing Internal Dependencies
-const { query } = require("express");
 const User = require("./model"); // Import the User model from the model.js file. This model represents the users table in the database and can be used to run queries on this table.
 const jwt = require("jsonwebtoken"); // Import the jsonwebtoken library, which provides functions for creating and verifying JSON Web Tokens (JWTs). JWTs are a compact, URL-safe means of representing claims to be transferred between two parties. The claims in a JWT are encoded as a JSON object that is used as the payload of a JSON Web Signature (JWS) structure or as the plaintext of a JSON Web Encryption (JWE) structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted.
 const { UniqueConstraintError } = require("sequelize");
