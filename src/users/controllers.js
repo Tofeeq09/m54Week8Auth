@@ -15,9 +15,9 @@ const signup = async (req, res) => {
     const user = await User.create({ username, email, password }); // Create a new user in the database using the User model's create method. This method inserts a new row in the users table with the provided username, email, and password. It returns a promise that resolves to the newly created user.
 
     const token = jwt.sign({ id: user.id }, process.env.SECRET); // Create a new JWT using the jsonwebtoken library. The jwt.sign() method takes a payload (in this case, the user's id) and a secret key as arguments, and returns a new JWT. The secret key should be stored in an environment variable for security. The JWT is a string that contains the payload and a signature, and it can be used to authenticate the user in future requests.
-    const userResponse = { id: user.id, username: user.username, email: user.email, token: token }; // Create a response object that includes the user's id, username, email, and token. This object will be sent back to the client in the response.
+    const serverResponse = { id: user.id, username: user.username, token: token }; // Create a response object that includes the user's id, username, email, and token. This object will be sent back to the client in the response.
 
-    res.status(201).json(userResponse); // Send a 201 Created status code and the userResponse object in the response. The 201 status code indicates that a new resource was successfully created.
+    res.status(201).json({ message: "Sign up success", user: serverResponse }); // Send a 201 Created status code and the userResponse object in the response. The 201 status code indicates that a new resource was successfully created.
     return; // End the function execution here. The following code will not be executed.
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
@@ -34,7 +34,7 @@ const signup = async (req, res) => {
       }
     }
 
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
     return; // End the function execution here. The following code will not be executed.
   }
 };
@@ -54,10 +54,10 @@ const login = async (req, res) => {
     const token = jwt.sign({ id: req.user.id }, process.env.SECRET); // Create a new JWT using the jsonwebtoken library. The jwt.sign() method takes a payload (in this case, the user's id) and a secret key as arguments, and returns a new JWT. The secret key should be stored in an environment variable for security. The JWT is a string that contains the payload and a signature, and it can be used to authenticate the user in future requests.
     const user = { id: req.user.id, username: req.user.username, token: token }; // Create a response object that includes the user's id, username, and token. This object will be sent back to the client in the response.
 
-    res.status(201).json({ message: "login success", user: user }); // Send a 201 Created status code and the user object in the response. The 201 status code indicates that a new resource was successfully created.
+    res.status(201).json({ message: "Login success", user: user }); // Send a 201 Created status code and the user object in the response. The 201 status code indicates that a new resource was successfully created.
     return; // End the function execution here. The following code will not be executed.
   } catch (error) {
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the jsonwebtoken library, a problem with the User model, a problem with the request body, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the jsonwebtoken library, a problem with the User model, a problem with the request body, or a problem with the server itself.
     return; // End the function execution here. The following code will not be executed.
   }
 };
@@ -65,28 +65,26 @@ const login = async (req, res) => {
 // GET /api/users route - This route retrieves all users from the database.
 const getAllUsers = async (req, res) => {
   try {
-    //
     let whereClause = {}; // Create an empty object to store the where clause for the query. This object will be used to filter the users based on the query parameters in the request.
+
     if (req.query.username && req.query.username.trim() !== "") {
       // Check if the username query parameter is present and not empty. If it is, add a where clause to the query to filter the users based on the username. The Op.like operator is used to perform a case-insensitive search for usernames that start with the specified value. This is useful for implementing autocomplete functionality in the client application.
       whereClause.username = {
         [Op.like]: `${req.query.username}%`, // The value of the username query parameter is used as the search value. The % symbol is a wildcard that matches any sequence of characters. This means that the query will match usernames that start with the specified value.
       };
     }
-    //
-
     const users = await User.findAll({ where: whereClause }); // Use the User model's findAll method to get all users from the database. This method returns a promise that resolves to an array of users. The where clause is used to filter the users based on the query parameters in the request.
     if (!users.length) {
       res.status(404).json({ message: "No users found" }); // If the array of users is empty (i.e., if there are no users in the database) then send a 404 Not Found status code and a message in the response. The 404 status code indicates that the requested resource could not be found on the server.
       return; // End the function execution here. The following code will not be executed.
     }
 
-    const usersResponse = users.map((user) => ({ id: user.id, username: user.username, email: user.email })); // Create a response array that includes the id, username, and email of each user. This array will be sent back to the client in the response.
+    const usersResponse = users.map((user) => ({ id: user.id, username: user.username, createdAt: user.createdAt })); // Create a response array that includes the id, username, and createdAt timestamp for each user. This array will be sent back to the client in the response.
 
     res.status(200).json(usersResponse); // Send a 200 OK status code and the array of users in the response. The 200 status code indicates that the request was successful.
     return; // End the function execution here. The following code will not be executed.
   } catch (error) {
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
     return; // End the function execution here. The following code will not be executed.
   }
 };
@@ -101,13 +99,32 @@ const getUserByUsername = async (req, res) => {
       return; // End the function execution here. The following code will not be executed.
     }
 
-    const userResponse = { id: user.id, username: user.username, email: user.email }; // Create a response object that includes the user's id, username, and email. This object will be sent back to the client in the response.
-
-    res.status(200).json(userResponse); // Send a 200 OK status code and the userResponse object in the response. The 200 status code indicates that the request was successful.
+    const userResponse = { id: user.id, username: user.username, createdAt: user.createdAt }; // Create a response object that includes the user's id, username, and createdAt timestamp. This object will be sent back to the client in the response.
+    res.status(200).json(user); // Send a 200 OK status code and the userResponse object in the response. The 200 status code indicates that the request was successful.
     return; // End the function execution here. The following code will not be executed.
   } catch (error) {
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request parameters, or a problem with the server itself.
     return; // End the function execution here. The following code will not be executed.
+  }
+};
+
+const getUserDetailsByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ where: { username } });
+    if (!user) {
+      res.status(404).json({ message: `User with username ${username} not found` });
+      return;
+    }
+
+    const userResponse = user.toJSON(); // Convert the user object to a JSON object. This is done to remove the password from the user object before sending it in the response. The toJSON method is a built-in method of Sequelize models that returns a plain JSON representation of the model, removing any hidden fields (e.g., the password field).
+    delete userResponse.password; // Remove the password from the userResponse object before sending it in the response. This is a security measure to prevent the user's password from being exposed to the client.
+
+    res.status(200).json(userResponse);
+    return;
+  } catch (error) {
+    res.status(500).json({ error: { name: error.name, message: error.message } });
+    return;
   }
 };
 
@@ -161,7 +178,7 @@ const updateUserByUsername = async (req, res) => {
       }
     }
 
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
+    res.status(500).json({ error: { name: error.name, message: error.message } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the User model, a problem with the request body, or a problem with the server itself.
     return; // End the function execution here. The following code will not be executed.
   }
 };
@@ -181,7 +198,7 @@ const deleteUserByUsername = async (req, res) => {
     res.status(200).json({ message: `User with username ${username} deleted` });
     return; // End the function execution here. The following code will not be executed.
   } catch (error) {
-    res.status(500).json({ error: { name: error.name, message: error.message, stack: error.stack } });
+    res.status(500).json({ error: { name: error.name, message: error.message } });
     return; // End the function execution here. The following code will not be executed.
   }
 };
@@ -192,6 +209,7 @@ module.exports = {
   login,
   getAllUsers,
   getUserByUsername,
+  getUserDetailsByUsername,
   updateUserByUsername,
   deleteUserByUsername,
 }; // Export the controller functions for use in other files. These functions handle the logic for the different routes. Each function corresponds to a specific route and HTTP method, and contains the logic to handle requests to that route.
