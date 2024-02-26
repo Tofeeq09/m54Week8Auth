@@ -1,3 +1,6 @@
+// Importing External Dependencies
+const { Op } = require("sequelize"); // Import the Op object from the sequelize module. This object provides operators that can be used to perform operations in Sequelize queries. Operators include $eq, $ne, $gt, $gte, $lt, $lte, $in, $notIn, $like, $notLike, $iLike, $notILike, $regexp, $notRegexp, $iRegexp, $notIRegexp, $between, $notBetween, $overlap, $contains, $contained, $adjacent, $strictLeft, $strictRight, $noExtendRight, $noExtendLeft, $and, $or, $any, $all, $values, $col, $raw, $json, $jsonb, $cast, $literal, etc.
+
 //  Importing Internal Dependencies
 const User = require("./model"); // Import the User model from the model.js file. This model represents the users table in the database and can be used to run queries on this table.
 const jwt = require("jsonwebtoken"); // Import the jsonwebtoken library, which provides functions for creating and verifying JSON Web Tokens (JWTs). JWTs are a compact, URL-safe means of representing claims to be transferred between two parties. The claims in a JWT are encoded as a JSON object that is used as the payload of a JSON Web Signature (JWS) structure or as the plaintext of a JSON Web Encryption (JWE) structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted.
@@ -62,7 +65,17 @@ const login = async (req, res) => {
 // GET /api/users route - This route retrieves all users from the database.
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll({ where: req.query }); // Use the User model's findAll method to get all users from the database. This method returns a promise that resolves to an array of users. The where clause is used to filter the users based on the query parameters in the request.
+    //
+    let whereClause = {}; // Create an empty object to store the where clause for the query. This object will be used to filter the users based on the query parameters in the request.
+    if (req.query.username && req.query.username.trim() !== "") {
+      // Check if the username query parameter is present and not empty. If it is, add a where clause to the query to filter the users based on the username. The Op.like operator is used to perform a case-insensitive search for usernames that start with the specified value. This is useful for implementing autocomplete functionality in the client application.
+      whereClause.username = {
+        [Op.like]: `${req.query.username}%`, // The value of the username query parameter is used as the search value. The % symbol is a wildcard that matches any sequence of characters. This means that the query will match usernames that start with the specified value.
+      };
+    }
+    //
+
+    const users = await User.findAll({ where: whereClause }); // Use the User model's findAll method to get all users from the database. This method returns a promise that resolves to an array of users. The where clause is used to filter the users based on the query parameters in the request.
     if (!users.length) {
       res.status(404).json({ message: "No users found" }); // If the array of users is empty (i.e., if there are no users in the database) then send a 404 Not Found status code and a message in the response. The 404 status code indicates that the requested resource could not be found on the server.
       return; // End the function execution here. The following code will not be executed.
