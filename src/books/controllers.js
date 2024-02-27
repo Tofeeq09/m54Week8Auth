@@ -77,34 +77,6 @@ const addBookToUserLibrary = async (req, res) => {
   }
 };
 
-const getUserBooks = async (req, res) => {
-  const username = req.params.username;
-
-  try {
-    // Find the user
-    const user = await User.findOne({ where: { username: username } });
-
-    if (!user) {
-      return res.status(404).json({ error: `User with username ${username} not found.` });
-    }
-
-    // Get the user's books
-    let books = await user.getBooks();
-
-    // Simplify the books array
-    books = books.map((book) => ({
-      title: book.title,
-      author: book.author,
-      genre: book.genre,
-    }));
-
-    res.status(200).json(books);
-  } catch (error) {
-    console.error(`Error fetching user's books: ${error}`);
-    res.status(500).json({ error: error.message });
-  }
-};
-
 const removeBookFromUserLibrary = async (req, res) => {
   const username = req.body.username;
   const bookTitle = req.body.bookTitle;
@@ -131,9 +103,37 @@ const removeBookFromUserLibrary = async (req, res) => {
     // Remove the book from the user's library
     await user.removeBook(book);
 
-    res.status(200).json({ message: `Book removed from user's library successfully.` });
+    res.status(200).json({ message: `Book  removed from user's library successfully.` });
   } catch (error) {
     console.error(`Error removing book from user's library: ${error}`);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getUserBooks = async (req, res) => {
+  const username = req.params.username;
+
+  try {
+    // Find the user
+    const user = await User.findOne({ where: { username: username } });
+
+    if (!user) {
+      return res.status(404).json({ error: `User with username ${username} not found.` });
+    }
+
+    // Get the user's books
+    let books = await user.getBooks();
+
+    // Simplify the books array
+    books = books.map((book) => ({
+      title: book.title,
+      author: book.author,
+      genre: book.genre,
+    }));
+
+    res.status(200).json(books);
+  } catch (error) {
+    console.error(`Error fetching user's books: ${error}`);
     res.status(500).json({ error: error.message });
   }
 };
