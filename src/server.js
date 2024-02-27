@@ -4,8 +4,13 @@ const express = require("express"); // Import Express.js, a web application fram
 const cors = require("cors"); // Import the CORS middleware, which is used to enable Cross-Origin Resource Sharing. This is necessary for allowing requests from the client application, which may be running on a different domain or port.
 
 // Importing Internal Dependencies - These are modules or components from our application's source code, which we've defined to structure our application.
+
+const sequelize = require("./db/connection"); // Import the sequelize instance from the connection.js file. This instance is configured with the database connection parameters and can be used to define models and run queries. By using this instance, we ensure that all queries run on the same database connection.
 const { userRouter, signupRouter, loginRouter } = require("./users/routes"); // Import the routers for the user, login & signup routes from the users/routes.js file. This router defines the endpoint for the login operation, which authenticates a user and starts a new session.
 const User = require("./users/model"); // Import the User model from the users/model.js file. This model represents the users table in the database. It defines the schema for the table and provides methods for interacting with the table.
+
+const { Book } = require("./books/model"); // Import the Book and Genre models from the books/model.js file. These models represent the books and genres tables in the database. They define the schema for the tables and provide methods for interacting with the tables.
+const { bookRouter } = require("./books/routes"); // Import the router for the book routes from the books/routes.js file. This router defines the endpoints for the book operations, such as adding, updating, and deleting books.
 
 // Environment Variables
 const port = process.env.PORT || 5001; // Set the port for the server to listen on. This is either the PORT environment variable (if it is set) or 5001. The PORT environment variable is often set by deployment environments, while 5001 is a common default for local development.
@@ -14,13 +19,13 @@ const port = process.env.PORT || 5001; // Set the port for the server to listen 
 const app = express(); // Initialize a new Express.js application. This application object is used to set up the middleware and routes. Express.js is a minimalist web application framework for Node.js, providing a robust set of features for building single and multi-page, and hybrid web applications.
 const apiRouter = express.Router(); // Initialize a new router. This router will be used to define the API routes. The Router is like a mini Express application, capable of performing middleware and routing functions. Each router effectively acts as a middleware itself.
 
-// Middleware Setup
-app.use(express.json()); // Use the built-in Express.js middleware for parsing JSON. This allows us to access the body of HTTP requests in req.body. This is particularly useful when handling POST or PUT requests where the request body often contains the data we need.
-
 app.use(
   // Use the built-in Express.js middleware for setting HTTP headers. This middleware is used to set the Access-Control-Allow-Origin header, which controls which origins are allowed to access the server. This is necessary for allowing requests from the client application, which may be running on a different domain or port.
-  cors() // The cors() function returns a middleware that sets the Access-Control-Allow-Origin header to allow requests from any origin. This is useful during development, but in a production environment, you would typically set this header to a specific origin or list of origins to prevent unauthorized access to your server.
+  cors() // Enable Cross-Origin Resource Sharing (CORS) for all routes. This middleware sets the Access-Control-Allow-Origin header to *, allowing requests from any origin. This is a common configuration for public APIs, but it can be customized to allow requests from specific origins.
 );
+
+// Middleware Setup
+app.use(express.json()); // Use the built-in Express.js middleware for parsing JSON. This allows us to access the body of HTTP requests in req.body. This is particularly useful when handling POST or PUT requests where the request body often contains the data we need.
 
 // Mounting apiRouter on app
 app.use("/api", apiRouter); // Mount the apiRouter on the path "/api". This means that any route defined in apiRouter will be prefixed with "/api". This is a common pattern in Express.js applications to prefix all API routes with "/api" to distinguish them from other routes, such as those serving static files or client-side applications.
@@ -28,6 +33,7 @@ app.use("/api", apiRouter); // Mount the apiRouter on the path "/api". This mean
 apiRouter.use("/users", userRouter); // Mount the UserRouter on the path "/users". This means that any route defined in UserRouter will be prefixed with "/users". This is a common pattern in Express.js applications to modularize routes and make the code more maintainable.
 apiRouter.use("/signup", signupRouter); // Mount the SignupRouter on the path "/signup". This means that any route defined in SignupRouter will be prefixed with "/signup". This allows us to group all signup-related routes together, which can make the code easier to understand and maintain.
 apiRouter.use("/login", loginRouter); // Mount the LoginRouter on the path "/login". This means that any route defined in LoginRouter will be prefixed with "/login". This allows us to group all login-related routes together, which can make the code easier to understand and maintain.
+apiRouter.use("/books", bookRouter); // Mount the BookRouter on the path "/books". This means that any route defined in BookRouter will be prefixed with "/books". This allows us to group all book-related routes together, which can make the code easier to understand and maintain.
 
 // Health Check
 app.get("/health", (req, res) => {
@@ -40,7 +46,14 @@ app.get("/health", (req, res) => {
 const syncTables = async () => {
   // Define an asynchronous function to synchronize the database tables with the models defined in our application.This function is called when the server starts, ensuring that our database schema matches the models we've defined in code. This is particularly useful during development, as it allows us to modify our models and have those changes reflected in the database without having to manually alter the database schema.
 
-  await User.sync(); // The sync method is a Sequelize method that synchronizes the model with the database by creating the corresponding table if it does not exist. If the table already exists, it does nothing. Note that this method is asynchronous and returns a Promise, so we use the await keyword to wait for it to complete before continuing.
+  // Define relationships
+  User.belongsToMany(Book, { through: "UserBooks" });
+  Book.belongsToMany(User, { through: "UserBooks" });
+
+  // Sync models with database
+  await User.sync();
+  await Book.sync();
+  await sequelize.models.UserBooks.sync();
 };
 
 // Server
