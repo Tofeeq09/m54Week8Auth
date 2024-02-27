@@ -105,4 +105,37 @@ const getUserBooks = async (req, res) => {
   }
 };
 
-module.exports = { getAllBooks, addBooks, addBookToUserLibrary, getUserBooks };
+const removeBookFromUserLibrary = async (req, res) => {
+  const username = req.body.username;
+  const bookTitle = req.body.bookTitle;
+
+  try {
+    // Find the user
+    const user = await User.findOne({ where: { username: username } });
+
+    if (!user) {
+      return res.status(404).json({ error: `User with username ${username} not found.` });
+    }
+
+    // Find the book
+    const book = await Book.findOne({
+      where: {
+        title: bookTitle,
+      },
+    });
+
+    if (!book) {
+      return res.status(404).json({ error: `Book with title ${bookTitle} not found.` });
+    }
+
+    // Remove the book from the user's library
+    await user.removeBook(book);
+
+    res.status(200).json({ message: `Book removed from user's library successfully.` });
+  } catch (error) {
+    console.error(`Error removing book from user's library: ${error}`);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { getAllBooks, addBooks, addBookToUserLibrary, getUserBooks, removeBookFromUserLibrary };
