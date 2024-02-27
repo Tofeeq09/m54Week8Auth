@@ -1,9 +1,14 @@
-// // Importing External Dependencies
-// const { Router } = require("express");
+const { Router } = require("express");
 
-// // Importing Internal Dependencies
-// const { getAllBooks, getBookById, createBook, updateBookById, deleteBookById } = require("./controllers");
-// const { verifyToken } = require("../middleware/verifyToken");
+const { getAllBooks, addBooks, addBookToUserLibrary } = require("./controllers");
+const { verifyToken } = require("../middleware/verifyToken");
 
-// // Router Initializations
-// const bookRouter = Router();
+const bookRouter = Router();
+
+bookRouter.get("/", getAllBooks);
+bookRouter.post("/", addBooks);
+bookRouter.post("/add", verifyToken, addBookToUserLibrary);
+
+module.exports = {
+  bookRouter,
+};

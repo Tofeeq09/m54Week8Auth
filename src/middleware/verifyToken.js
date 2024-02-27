@@ -57,9 +57,11 @@ const verifyToken = async (req, res, next) => {
 
     next(); // If the user is found, call the next middleware function or the route handler in the stack. This could be another middleware function that performs additional processing, or it could be the route handler that responds to the request.
   } catch (error) {
-    res.status(501).json({ error: { name: error.name, message: error.message, stack: error.stack } }); // If an error occurs, send a 501 Not Implemented status code and the error message in the response. This could be due to a problem with the jwt library, a problem with the User model, a problem with the request headers, or a problem with the server itself.
+    res.status(501).json({ error: { name: error.name, message: error.message } }); // If an error occurs, send a 501 Not Implemented status code and the error message in the response. This could be due to a problem with the jwt library, a problem with the User model, a problem with the request headers, or a problem with the server itself.
     return; // Return early to prevent the next() function from being called. This stops the middleware chain and prevents the route handler from being called.
   }
 };
+
+// Status code 501 is used when the server does not support the functionality required to fulfill the request.
 
 module.exports = { verifyToken }; // Export the tokenCheck middleware function for use in other files. This function can be used in the route definitions to perform token verification before the route handlers are called.

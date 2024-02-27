@@ -21,6 +21,7 @@ const {
   validatePassword,
   checkPasswordChanged,
 } = require("../middleware/validation"); // Import the validation middleware functions from the validation.js file. These functions are used to validate user input and perform checks before updating user data. For example, the fetchUser function retrieves a user from the database, the checkUsernameChanged function checks if the username has been changed, and the checkEmailChanged function checks if the email has been changed.
+const { getUserBooks } = require("../books/controllers"); // Import the getUserBooks controller function from the books/controllers.js file. This function retrieves the books associated with a user from the database.
 
 // Router Initializations
 const userRouter = Router(); // Initialize a new router object for user-related routes. This object will be used to define routes related to users. Each route will be attached to this router object and will be relative to the path where this router is used in the main server file.
@@ -32,6 +33,7 @@ const loginRouter = Router(); // Initialize a new router object for the login ro
 userRouter.get("/", verifyToken, getAllUsers); // Define a GET route at the path "/". When this route is hit, the getAllUsers controller function is called. This function retrieves all users from the database and sends them in the response.
 userRouter.get("/:username", getUserByUsername); // Define a GET route at the path "/:username". When this route is hit, the getUserByUsername controller function is called. This function retrieves a user with the specified username from the database and sends it in the response.
 userRouter.get("/:username/account", verifyToken, getUserDetailsByUsername);
+userRouter.get("/:username/books", verifyToken, getUserBooks);
 userRouter.put(
   "/:username",
   verifyToken,

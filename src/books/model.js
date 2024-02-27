@@ -12,28 +12,23 @@ const Book = sequelize.define(
     title: {
       type: DataTypes.STRING, // The title is a string data type. This means that the title column can hold string data. The STRING data type can hold any kind of text data.
       allowNull: false, // The title cannot be null. This means that the title column must always have a value. This is enforced at the database level.
+      unique: true, // The title must be unique. This means that the database will not allow two rows to have the same title. This is enforced at the database level.
+      primaryKey: true, // The title is the primary key. This means that the title column uniquely identifies each row in the table. This is enforced at the database level.
     },
     author: {
       type: DataTypes.STRING, // The author is a string data type. This means that the author column can hold string data. The STRING data type can hold any kind of text data.
       allowNull: false, // The author cannot be null. This means that the author column must always have a value. This is enforced at the database level.
+      defaultValue: "Unknown", // The author has a default value of "Unknown". This means that if the author is not provided, the database will use "Unknown" as the default value. This is enforced at the database level.
     },
     genre: {
       type: DataTypes.STRING, // The genre is a string data type. This means that the genre column can hold string data. The STRING data type can hold any kind of text data.
       allowNull: false, // The genre cannot be null. This means that the genre column must always have a value. This is enforced at the database level.
+      defaultValue: "Unknown", // The genre has a default value of "Unknown". This means that if the genre is not provided, the database will use "Unknown" as the default value. This is enforced at the database level.
     },
   }
 );
 
-// Define the Genre model
-const Genre = sequelize.define("Genre", {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
-
 // Export the Book & Genre models
 module.exports = {
   Book,
-  Genre,
 }; // Export the Book and Genre models for use in other files. These models can be used to define the schema for the books and genres tables in the database. By exporting them, we can use the same models throughout our application, which is more efficient than defining new models for each query.
