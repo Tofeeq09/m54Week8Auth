@@ -54,7 +54,7 @@ const login = async (req, res) => {
     const token = jwt.sign({ id: req.user.id }, process.env.SECRET); // Create a new JWT using the jsonwebtoken library. The jwt.sign() method takes a payload (in this case, the user's id) and a secret key as arguments, and returns a new JWT. The secret key should be stored in an environment variable for security. The JWT is a string that contains the payload and a signature, and it can be used to authenticate the user in future requests.
     const user = { id: req.user.id, username: req.user.username, token: token }; // Create a response object that includes the user's id, username, and token. This object will be sent back to the client in the response.
 
-    res.status(201).json({ message: "Login success", user: user.username }); // Send a 201 Created status code and the user object in the response. The 201 status code indicates that a new resource was successfully created.
+    res.status(201).json({ message: "Login success", user: user }); // Send a 201 Created status code and the user object in the response. The 201 status code indicates that a new resource was successfully created.
     return; // End the function execution here. The following code will not be executed.
   } catch (error) {
     res.status(500).json({ error: { name: error.name, message: error.message } }); // If an error occurs, send a 500 Internal Server Error status code and the error message in the response. This could be due to a problem with the jsonwebtoken library, a problem with the User model, a problem with the request body, or a problem with the server itself.
