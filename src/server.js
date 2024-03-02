@@ -7,10 +7,9 @@ const cors = require("cors"); // Import the CORS middleware, which is used to en
 
 const sequelize = require("./db/connection"); // Import the sequelize instance from the connection.js file. This instance is configured with the database connection parameters and can be used to define models and run queries. By using this instance, we ensure that all queries run on the same database connection.
 const { userRouter, signupRouter, loginRouter } = require("./users/routes"); // Import the routers for the user, login & signup routes from the users/routes.js file. This router defines the endpoint for the login operation, which authenticates a user and starts a new session.
-const User = require("./users/model"); // Import the User model from the users/model.js file. This model represents the users table in the database. It defines the schema for the table and provides methods for interacting with the table.
-
-const { Book } = require("./books/model"); // Import the Book and Genre models from the books/model.js file. These models represent the books and genres tables in the database. They define the schema for the tables and provide methods for interacting with the tables.
 const { bookRouter } = require("./books/routes"); // Import the router for the book routes from the books/routes.js file. This router defines the endpoints for the book operations, such as adding, updating, and deleting books.
+const User = require("./users/model"); // Import the User model from the users/model.js file. This model represents the users table in the database. It defines the schema for the table and provides methods for interacting with the table.
+const Book = require("./books/model"); // Import the Book and Genre models from the books/model.js file. These models represent the books and genres tables in the database. They define the schema for the tables and provide methods for interacting with the tables.
 
 // Environment Variables
 const port = process.env.PORT || 5001; // Set the port for the server to listen on. This is either the PORT environment variable (if it is set) or 5001. The PORT environment variable is often set by deployment environments, while 5001 is a common default for local development.

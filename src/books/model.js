@@ -29,6 +29,4 @@ const Book = sequelize.define(
 );
 
 // Export the Book & Genre models
-module.exports = {
-  Book,
-}; // Export the Book and Genre models for use in other files. These models can be used to define the schema for the books and genres tables in the database. By exporting them, we can use the same models throughout our application, which is more efficient than defining new models for each query.
+module.exports = Book; // Export the Book and Genre models for use in other files. These models can be used to define the schema for the books and genres tables in the database. By exporting them, we can use the same models throughout our application, which is more efficient than defining new models for each query.
